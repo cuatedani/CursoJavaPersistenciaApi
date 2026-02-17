@@ -1,4 +1,6 @@
-public class Pokemon {
+package Entity;
+
+public class PokemonEntity {
     int id;
     String name;
     double height;
