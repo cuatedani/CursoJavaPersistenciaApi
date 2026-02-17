@@ -1,64 +1,117 @@
 package Domain;
 
+import Entity.PokemonEntity;
 import Service.PokemonService;
 
 import javax.swing.*;
 
 public class Inicio {
 
-    public static void main(String[] Args){
+    public static void main(String[] args) {
+
         PokemonService pokeSer = new PokemonService();
 
-        int optMenu = -1;
-        String[] botones = {"Buscar por Nombre", "Buscar Por Numero", "Salir"};
+        while (true) {
 
-        //Menu Principal
-        String opcion = (String) JOptionPane.showInputDialog(null, "Pokeapi Java", "Menu Principal", JOptionPane.INFORMATION_MESSAGE, null,
-                botones, botones[0]);
+            String[] botones = {"Buscar por Nombre", "Buscar Por Numero", "Salir"};
 
-        //Realizar Accion
-        switch (opcion){
-            case "Buscar por Nombre":
-                break;
-            case "Buscar Por Numero":
-                int id = Integer.parseInt(
-                        JOptionPane.showInputDialog("Ingresa un id de pokemon")
-                );
+            String opcion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Pokeapi Java",
+                    "Menu Principal",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    botones,
+                    botones[0]
+            );
 
-                var pokemon = pokeSer.findById(id);
+            // Si cierra o cancela el menú
+            if (opcion == null) {
+                continue;
+            }
 
-                if (pokemon != null && pokemon.getSprites().getFront_default() != null) {
+            switch (opcion) {
+
+                case "Buscar por Nombre":
+
+                    String nombre = JOptionPane.showInputDialog(
+                            "Ingresa el nombre del pokemon"
+                    );
+
+                    if (nombre == null || nombre.isBlank()) {
+                        continue;
+                    }
+
+                    PokemonEntity pokemonNombre =
+                            pokeSer.findByName(nombre.toLowerCase().trim());
+
+                    mostrarPokemon(pokemonNombre);
+                    break;
+
+
+                case "Buscar Por Numero":
+
+                    String input = JOptionPane.showInputDialog(
+                            "Ingresa un id de pokemon"
+                    );
+
+                    if (input == null || input.isBlank()) {
+                        continue;
+                    }
 
                     try {
-                        java.net.URL imageUrl = new java.net.URL(
-                                pokemon.getSprites().getFront_default()
-                        );
-
-                        ImageIcon icon = new ImageIcon(imageUrl);
-
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "Pokemon #" + pokemon.getId()+
-                                        "\nNombre: " + pokemon.getName() +
-                                        "\nAltura: " + pokemon.getHeight()+
-                                        "\nPeso: " + pokemon.getWeight(),
-                                "Pokemon Encontrado",
-                                JOptionPane.INFORMATION_MESSAGE,
-                                icon
-                        );
-
-                    } catch (Exception e) {
+                        int id = Integer.parseInt(input);
+                        PokemonEntity pokemonId = pokeSer.findById(id);
+                        mostrarPokemon(pokemonId);
+                    } catch (NumberFormatException e) {
                         JOptionPane.showMessageDialog(null,
-                                "Error al cargar imagen");
+                                "Debes ingresar un número válido");
                     }
-                }
-                break;
-            case "2.- Salir":
-                System.exit(0);
-                break;
-            default:
-                System.exit(0);
-                break;
+
+                    break;
+
+
+                case "Salir":
+                    System.exit(0);
+                    break;
+            }
+        }
+    }
+
+    private static void mostrarPokemon(PokemonEntity pokemon) {
+
+        if (pokemon == null ||
+                pokemon.getSprites() == null ||
+                pokemon.getSprites().getFront_default() == null) {
+
+            JOptionPane.showMessageDialog(null,
+                    "Pokemon no encontrado");
+            return;
+        }
+
+        try {
+
+            java.net.URL imageUrl =
+                    new java.net.URL(
+                            pokemon.getSprites().getFront_default()
+                    );
+
+            ImageIcon icon = new ImageIcon(imageUrl);
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Pokemon #" + pokemon.getId() +
+                            "\nNombre: " + pokemon.getName() +
+                            "\nAltura: " + pokemon.getHeight() +
+                            "\nPeso: " + pokemon.getWeight(),
+                    "Pokemon Encontrado",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    icon
+            );
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "Error al cargar imagen");
         }
     }
 }
